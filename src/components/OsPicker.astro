@@ -1,0 +1,23 @@
+---
+// Shown only with JavaScript (html.js); without it every platform block is
+// visible, each with its own label.
+import { OS_LABELS, OSES } from '../lib/shared'
+
+const options = OSES.map((value) => ({ value, label: OS_LABELS[value] }))
+---
+
+<fieldset class="os-picker">
+  <legend>Το σύστημά σου</legend>
+  <p class="os-hint">Διάλεξε για να βλέπεις μόνο τις οδηγίες για το δικό σου σύστημα. Μπορείς να το αλλάξεις όποτε θέλεις.</p>
+  <div class="os-options">
+    {
+      options.map((o) => (
+        <label>
+          <input type="radio" name="os" value={o.value} />
+          {o.label}
+        </label>
+      ))
+    }
+    <button type="button" class="link-button" data-os-clear>Δείξε όλα</button>
+  </div>
+</fieldset>

@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro'
+import { loadCourses } from '../lib/course'
+
+const courses = await loadCourses()
+---
+
+<Base title="oncut learn" description="Δωρεάν μαθήματα προγραμματισμού στα ελληνικά. Ξεκινάς από το μηδέν, με πραγματικό compiler στον υπολογιστή σου.">
+  <h1>Μάθε προγραμματισμό, από την αρχή</h1>
+  <p class="lead">
+    Δωρεάν μαθήματα στα ελληνικά. Γράφεις κώδικα στον δικό σου υπολογιστή, με τα εργαλεία που
+    χρησιμοποιούν οι επαγγελματίες, και καταλαβαίνεις τι κάνει το καθένα.
+  </p>
+  <ul class="course-list">
+    {
+      courses.map((c) => (
+        <li>
+          <a href={c.url}>
+            <strong>{c.entry.data.title}</strong>
+            <span>{c.entry.data.summary}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

@@ -1,0 +1,65 @@
+---
+import type { Quiz } from '../lib/course'
+
+interface Props {
+  quiz: Quiz
+  lessonId: string
+}
+
+const { quiz, lessonId } = Astro.props
+const questions = quiz.data.questions
+---
+
+<section class="quiz" data-quiz data-lesson-id={lessonId} aria-labelledby="quiz-title">
+  <h2 id="quiz-title">Έλεγξε τι κατάλαβες</h2>
+  <p data-quiz-status></p>
+  <form>
+    {
+      questions.map((q, n) => (
+        <fieldset class="question" data-question data-objective={q.objective}>
+          <legend>
+            {n + 1}. {q.prompt}
+          </legend>
+          {q.choices.map((c, i) => (
+            <div class="choice">
+              <label>
+                <input type="radio" name={`q-${q.id}`} value={String(i)} data-correct={c.correct ? '' : undefined} />
+                {c.text}
+              </label>
+              <p class="explanation" data-explanation={String(i)} hidden>
+                {c.explanation}
+              </p>
+            </div>
+          ))}
+        </fieldset>
+      ))
+    }
+    <button type="submit">Έλεγχος</button>
+    <p class="quiz-result" data-quiz-result role="status" aria-live="polite"></p>
+  </form>
+  <noscript>
+    <ol class="quiz-static">
+      {
+        questions.map((q) => {
+          const right = q.choices.find((c) => c.correct)!
+          return (
+            <li>
+              <p>{q.prompt}</p>
+              <ul>
+                {q.choices.map((c) => (
+                  <li>{c.text}</li>
+                ))}
+              </ul>
+              <details>
+                <summary>Η σωστή απάντηση</summary>
+                <p>
+                  <strong>{right.text}</strong> {right.explanation}
+                </p>
+              </details>
+            </li>
+          )
+        })
+      }
+    </ol>
+  </noscript>
+</section>

@@ -1,0 +1,456 @@
+@import './design/tokens.css';
+@import './fonts.css';
+
+/* Colors, families and radii come from oncut-design (design/tokens.css, light
+   and dark, following the reader's system setting). The type scale, spacing
+   and layout are this site's own: tokens size dense desktop controls, a
+   lesson needs reading sizes (oncut-design docs/INTEGRATION.md, step 4). */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  color: var(--text-body);
+  font-family: var(--font-body);
+  font-size: 106.25%;
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  padding-block: 2rem 4rem;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 46rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 0.15em;
+}
+a:hover {
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+strong,
+b,
+legend,
+summary {
+  font-weight: 500;
+}
+h1 {
+  font-size: 2rem;
+  margin: 0.5rem 0 0.75rem;
+}
+h2 {
+  font-size: 1.35rem;
+  margin: 2.5rem 0 0.75rem;
+}
+
+.lead {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+:not(pre) > code {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.05em 0.3em;
+}
+pre {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  line-height: 1.5;
+  background: var(--bg-alt);
+}
+
+button,
+.file-label {
+  font: inherit;
+  color: var(--button-text);
+  background: var(--button-bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+button:hover,
+.file-label:hover {
+  color: var(--button-hover-text);
+  background: var(--button-hover-bg);
+  border-color: var(--button-hover-bg);
+}
+button:active {
+  color: var(--button-pressed-text);
+  background: var(--button-pressed-bg);
+}
+button:disabled {
+  color: var(--button-disabled-text);
+  background: var(--button-disabled-bg);
+  border-color: var(--border);
+  cursor: default;
+}
+button.danger {
+  color: var(--button-danger-text);
+  border-color: var(--button-danger-border);
+}
+button.danger:hover {
+  color: var(--button-danger-hover-text);
+  background: var(--button-danger-hover-bg);
+}
+.link-button {
+  background: none;
+  border: 0;
+  color: var(--accent);
+  padding: 0;
+  text-decoration: underline;
+}
+.link-button:hover,
+.link-button:active {
+  background: none;
+  color: var(--text);
+}
+.file-label {
+  display: inline-block;
+}
+.file-label input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.file-label:focus-within {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  background: var(--bg);
+  padding: 0.5rem;
+  z-index: 10;
+}
+
+/* ── Header and footer ──────────────────────────────────────────────────── */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+}
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.9rem;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  text-decoration: none;
+}
+/* The 2024 wordmark is 500x281 with its own margin; this height lines its
+   letters up with "learn". */
+.brand img {
+  display: block;
+  height: 2.1rem;
+  width: auto;
+}
+.site-header nav {
+  display: flex;
+  gap: 1.25rem;
+}
+.site-header nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.site-header nav a:hover {
+  color: var(--text);
+}
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  padding-block: 1.5rem;
+}
+
+.notice {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  text-align: center;
+  font-size: 0.92rem;
+  border-bottom: 1px solid var(--border);
+}
+.notice-backup {
+  background: var(--bg-alt);
+}
+.notice-warning {
+  background: var(--error-wash);
+}
+
+/* ── Course and progress lists ──────────────────────────────────────────── */
+
+.course-list,
+.lesson-list,
+.progress-list {
+  list-style: none;
+  padding: 0;
+}
+.course-list a {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  color: var(--text);
+}
+.course-list a:hover {
+  border-color: var(--accent);
+}
+.course-list span {
+  display: block;
+  color: var(--text-secondary);
+}
+.lesson-list li,
+.progress-list li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.lesson-summary {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+.badge,
+.lesson-progress {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: var(--success);
+}
+.progress-list .badge {
+  margin-left: 0.75rem;
+}
+
+/* ── Lesson ─────────────────────────────────────────────────────────────── */
+
+.breadcrumbs {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.objectives {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 1.25rem;
+}
+.objectives h2 {
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+.os-picker {
+  display: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  padding: 0.5rem 1.25rem 1rem;
+}
+.js .os-picker {
+  display: block;
+}
+.os-picker legend {
+  font-weight: 500;
+  padding-inline: 0.25rem;
+}
+.os-hint {
+  margin-top: 0;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+.os-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+}
+.os-options label {
+  cursor: pointer;
+}
+html:not([data-os]) [data-os-clear] {
+  display: none;
+}
+
+.platform {
+  border-left: 3px solid var(--accent);
+  background: var(--bg-alt);
+  border-radius: 0 6px 6px 0;
+  padding: 0.25rem 1rem;
+  margin: 1rem 0;
+}
+.platform-label {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.platform pre {
+  background: var(--bg);
+}
+html[data-os='windows'] .platform:not([data-os~='windows']),
+html[data-os='linux'] .platform:not([data-os~='linux']),
+html[data-os='macos'] .platform:not([data-os~='macos']) {
+  display: none;
+}
+
+.snippet {
+  margin: 1rem 0;
+}
+.snippet figcaption {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+.snippet pre {
+  margin: 0;
+}
+pre.output {
+  background: var(--bg);
+  border-style: dashed;
+}
+
+/* ── Quiz ───────────────────────────────────────────────────────────────── */
+
+/* Without JavaScript the form cannot check answers; <noscript> shows them. */
+html:not(.js) .quiz form {
+  display: none;
+}
+
+.quiz {
+  border-top: 1px solid var(--border);
+  margin-top: 3rem;
+}
+.question {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1.25rem;
+}
+.question legend {
+  font-weight: 500;
+  padding-inline: 0.25rem;
+}
+.question.is-correct {
+  border-color: var(--success);
+}
+.question.is-wrong,
+.question.is-unanswered {
+  border-color: var(--error);
+}
+.choice label {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.3rem 0;
+  cursor: pointer;
+}
+.explanation {
+  margin: 0 0 0.5rem 1.6rem;
+  font-size: 0.92rem;
+}
+.is-correct .explanation {
+  color: var(--success);
+}
+.is-wrong .explanation {
+  color: var(--error);
+}
+.quiz-result {
+  font-weight: 500;
+}
+
+.lesson-done {
+  margin-top: 2.5rem;
+}
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.verified {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 30rem) {
+  h1 {
+    font-size: 1.6rem;
+  }
+  .pager {
+    flex-direction: column;
+  }
+}
+
+/* Highlighted code: Shiki writes both themes as variables (astro.config.mjs);
+   the scheme picks one, as tokens.css does for every other color. */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-dark);
+}
+@media (prefers-color-scheme: light) {
+  .astro-code,
+  .astro-code span {
+    color: var(--shiki-light);
+  }
+}

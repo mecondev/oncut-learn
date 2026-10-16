@@ -1,0 +1,91 @@
+---
+import '../styles/global.css'
+import logoOnDark from '../assets/brand/oncut-logo-on-dark.png'
+import logoOnLight from '../assets/brand/oncut-logo-on-light.png'
+import { loadCourses } from '../lib/course'
+
+interface Props {
+  title: string
+  description: string
+}
+
+const { title, description } = Astro.props
+// Every course's map of retired lesson ids, on every page: the player moves
+// stored progress to the new ids on whichever page the visitor opens first,
+// and applies the map on import (src/player/main.ts).
+const idMap = Object.assign({}, ...(await loadCourses()).map((c) => c.idMap))
+const canonical = new URL(Astro.url.pathname, Astro.site).href
+const fullTitle = title === 'oncut learn' ? title : `${title} | oncut learn`
+---
+
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#181818" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="el_GR" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <script is:inline src="/os-early.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Μετάβαση στο περιεχόμενο</a>
+    <header class="site-header">
+      <div class="wrap header-row">
+        <a class="brand" href="/">
+          <picture>
+            <source srcset={logoOnLight.src} media="(prefers-color-scheme: light)" />
+            <img src={logoOnDark.src} width={logoOnDark.width} height={logoOnDark.height} alt="oncut" />
+          </picture>
+          learn
+        </a>
+        <nav aria-label="Κύριο μενού">
+          <a href="/cpp/">C++</a>
+          <a href="/progress/">Η πρόοδός μου</a>
+        </nav>
+      </div>
+    </header>
+    <p class="notice notice-backup" data-backup-reminder hidden>
+      Η πρόοδός σου άλλαξε από την τελευταία φορά που την αποθήκευσες σε αρχείο.
+      <a href="/progress/">Κράτα αντίγραφο</a>.
+    </p>
+    <p class="notice notice-warning" data-no-storage hidden>
+      Αυτός ο browser δεν επιτρέπει αποθήκευση δεδομένων σε αυτή τη σελίδα (ίσως είσαι σε ιδιωτικό
+      παράθυρο), οπότε η πρόοδος δεν θα κρατηθεί. Τα μαθήματα διαβάζονται κανονικά.
+    </p>
+    <p class="notice notice-warning" data-storage-blocked hidden>
+      Η σελίδα είναι ανοιχτή και σε άλλη καρτέλα με παλιότερη έκδοση, οπότε η πρόοδος δεν φορτώνεται
+      εδώ. Κλείσε τις άλλες καρτέλες του oncut learn και ανανέωσε αυτή.
+    </p>
+    <main id="main" class="wrap">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>
+          Η πρόοδός σου μένει μόνο σε αυτόν τον browser και δεν στέλνεται πουθενά. Δεν υπάρχουν
+          λογαριασμοί, cookies ή analytics. <a href="/progress/">Εξαγωγή και διαγραφή</a>.
+        </p>
+        <p>
+          <a href="https://www.oncut.gr/">oncut</a> · Κώδικας: Apache 2.0 · Κείμενα μαθημάτων: CC BY-NC-ND 4.0 ·
+          <a href="https://github.com/mecondev/oncut-learn">Πηγαίος κώδικας</a>
+        </p>
+      </div>
+    </footer>
+    <script type="application/json" id="id-map" set:html={JSON.stringify(idMap)} />
+    <script>
+      import '../player/main.ts'
+    </script>
+  </body>
+</html>

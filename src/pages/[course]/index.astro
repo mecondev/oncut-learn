@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro'
+import { loadCourses, type CourseNode } from '../../lib/course'
+
+export async function getStaticPaths() {
+  const courses = await loadCourses()
+  return courses.map((course) => ({ params: { course: course.entry.data.slug }, props: { course } }))
+}
+
+interface Props {
+  course: CourseNode
+}
+
+const { course } = Astro.props
+---
+
+<Base title={course.entry.data.title} description={course.entry.data.summary}>
+  <h1>{course.entry.data.title}</h1>
+  <p class="lead">{course.entry.data.summary}</p>
+  {course.lessons.length === 0 && <p>Το πρώτο μάθημα ετοιμάζεται.</p>}
+  {
+    course.modules.map((m, n) => m.lessons.length > 0 && (
+      <section class="module">
+        <h2>
+          {n}. {m.entry.data.title}
+        </h2>
+        <p>{m.entry.data.summary}</p>
+        <ol class="lesson-list">
+          {m.lessons.map((l) => (
+            <li>
+              <a href={l.url}>{l.entry.data.title}</a>
+              <span class="lesson-summary">{l.entry.data.summary}</span>
+              <span class="badge" data-progress-for={l.entry.data.id} hidden />
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))
+  }
+</Base>

@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro'
+import { loadCourses } from '../lib/course'
+
+const courses = await loadCourses()
+---
+
+<Base title="Η πρόοδός μου" description="Εξαγωγή, εισαγωγή και διαγραφή της προόδου σου στο oncut learn.">
+  <div data-progress-page>
+    <h1>Η πρόοδός μου</h1>
+    <p class="lead">
+      Η πρόοδος αποθηκεύεται μόνο σε αυτόν τον browser, σε αυτή τη συσκευή. Δεν στέλνεται πουθενά.
+      Αν σβηστούν τα δεδομένα του browser, χάνεται. Γι' αυτό κράτα αντίγραφο σε αρχείο.
+    </p>
+    <noscript><p>Η αποθήκευση προόδου χρειάζεται JavaScript.</p></noscript>
+
+    <section data-backup-tools data-needs-storage hidden>
+      <p data-persisted></p>
+      <h2>Αντίγραφο σε αρχείο</h2>
+      <p>Το αρχείο έχει μόνο τα μαθήματα που ολοκλήρωσες και το σύστημα που διάλεξες.</p>
+      <p><button type="button" data-export>Αποθήκευσε την πρόοδο σε αρχείο</button></p>
+      <h2>Φέρε πρόοδο από αρχείο</h2>
+      <p>Η πρόοδος από το αρχείο προστίθεται σε αυτή που έχεις ήδη εδώ.</p>
+      <p>
+        <label class="file-label">
+          Διάλεξε αρχείο
+          <input type="file" accept="application/json,.json" data-import />
+        </label>
+      </p>
+      <h2>Διαγραφή</h2>
+      <p><button type="button" class="danger" data-clear>Σβήσε την πρόοδο από αυτόν τον browser</button></p>
+      <p class="message" data-backup-message role="status" aria-live="polite"></p>
+    </section>
+
+    {
+      courses.map((c) => (
+        <section>
+          <h2>{c.entry.data.title}</h2>
+          <ul class="progress-list">
+            {c.lessons.map((l) => (
+              <li>
+                <a href={l.url}>{l.entry.data.title}</a>
+                <span class="badge" data-progress-for={l.entry.data.id} hidden />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</Base>

@@ -1,0 +1,35 @@
+/* oncut-design faces (src/styles/design/fonts), subset to Latin, Greek and
+   Cyrillic. Only the approved weights exist: no synthetic bold (CONTRACT of
+   oncut-design), so text that needs weight uses Medium or Display SemiBold. */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./design/fonts/Inter-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./design/fonts/Inter-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./design/fonts/InterDisplay-SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./design/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+}

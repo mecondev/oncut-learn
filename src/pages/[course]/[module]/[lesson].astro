@@ -1,0 +1,90 @@
+---
+import { render } from 'astro:content'
+import Base from '../../../layouts/Base.astro'
+import OsPicker from '../../../components/OsPicker.astro'
+import Quiz from '../../../components/Quiz.astro'
+import { loadCourses, type CourseNode, type LessonNode } from '../../../lib/course'
+
+export async function getStaticPaths() {
+  const courses = await loadCourses()
+  return courses.flatMap((course) =>
+    course.lessons.map((lesson, i) => ({
+      params: {
+        course: course.entry.data.slug,
+        module: lesson.module.entry.data.slug,
+        lesson: lesson.entry.data.slug,
+      },
+      props: { course, lesson, previous: course.lessons[i - 1], next: course.lessons[i + 1] },
+    })),
+  )
+}
+
+interface Props {
+  course: CourseNode
+  lesson: LessonNode
+  previous?: LessonNode
+  next?: LessonNode
+}
+
+const { course, lesson, previous, next } = Astro.props
+const data = lesson.entry.data
+const { Content } = await render(lesson.entry)
+// "15 Οκτωβρίου 2026": the lesson text names dates the same way.
+const verifiedDate = data.verified?.toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+const prerequisites = data.prerequisites.map((id) => course.lessons.find((l) => l.entry.data.id === id)!)
+---
+
+<Base title={data.title} description={data.summary}>
+  <article class="lesson" data-lesson-id={data.id}>
+    <nav class="breadcrumbs" aria-label="Διαδρομή">
+      <a href={course.url}>{course.entry.data.title}</a> › <span>{lesson.module.entry.data.title}</span>
+    </nav>
+    {data.draft && <p class="notice notice-warning">Πρόχειρο: αυτό το μάθημα δεν δημοσιεύεται ακόμα.</p>}
+    <h1>{data.title}</h1>
+    <p class="lead">{data.summary}</p>
+    <p class="lesson-progress" data-progress-for={data.id} hidden></p>
+
+    <section class="objectives" aria-labelledby="objectives-title">
+      <h2 id="objectives-title">Στο τέλος θα ξέρεις</h2>
+      <ul>{data.objectives.map((o) => <li>{o.text}</li>)}</ul>
+      {
+        prerequisites.length > 0 && (
+          <p>
+            Πριν από αυτό: {prerequisites.map((p, i) => (
+              <>
+                {i > 0 && ', '}
+                <a href={p.url}>{p.entry.data.title}</a>
+              </>
+            ))}
+          </p>
+        )
+      }
+    </section>
+
+    <OsPicker />
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {lesson.quiz && <Quiz quiz={lesson.quiz} lessonId={data.id} />}
+
+    <section class="lesson-done">
+      <button type="button" data-mark-read data-needs-storage hidden>Το διάβασα</button>
+      <p data-read-status role="status" aria-live="polite"></p>
+    </section>
+
+    <nav class="pager" aria-label="Μαθήματα">
+      {previous ? <a href={previous.url} rel="prev">← {previous.entry.data.title}</a> : <span />}
+      {next ? <a href={next.url} rel="next">{next.entry.data.title} →</a> : <a href={course.url}>Όλα τα μαθήματα</a>}
+    </nav>
+    {
+      data.verified && (
+        <p class="verified">
+          Οι οδηγίες ελέγχθηκαν στις {verifiedDate}. Αν κάτι στην οθόνη σου είναι διαφορετικό, μάλλον άλλαξε από
+          τότε η έκδοση.
+        </p>
+      )
+    }
+  </article>
+</Base>
