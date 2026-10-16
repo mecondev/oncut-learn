@@ -1,0 +1,16 @@
+{
+  "id": "cpp.setup.hello-world.greek-semicolon",
+  "files": ["hello.cpp"],
+  "standard": "c++17",
+  "expect": "compile-fail",
+  "error_contains": {
+    "gcc": "extended character",
+    "clang": "not allowed in an identifier",
+    "msvc": "C3688"
+  },
+  "compilers": ["gcc", "clang", "msvc"],
+  "platforms": ["windows", "linux", "macos"],
+  "intentional_error": true,
+  "ascii_only": false,
+  "needs_human_review": false
+}

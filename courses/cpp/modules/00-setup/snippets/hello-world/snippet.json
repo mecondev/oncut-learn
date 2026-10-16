@@ -1,0 +1,13 @@
+{
+  "id": "cpp.setup.hello-world.hello",
+  "files": ["hello.cpp"],
+  "standard": "c++17",
+  "expect": "run",
+  "stdout": "Hello, World!\n",
+  "cases": [],
+  "compilers": ["gcc", "clang", "msvc"],
+  "platforms": ["windows", "linux", "macos"],
+  "intentional_error": false,
+  "ascii_only": true,
+  "needs_human_review": false
+}

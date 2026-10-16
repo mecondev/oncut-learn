@@ -1,0 +1,8 @@
+{
+  "id": "cpp",
+  "slug": "cpp",
+  "title": "C++ από την αρχή",
+  "summary": "Μαθαίνεις C++ βήμα βήμα: από το πρώτο πρόγραμμα στο τερματικό μέχρι τη σύγχρονη C++, με compiler, CMake, Git και debugger.",
+  "language": "el",
+  "modules": ["00-setup"]
+}
