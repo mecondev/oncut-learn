@@ -1,0 +1,109 @@
+name: deploy
+
+# After ci passes on main: build the site and force-push dist/ to the orphan
+# `deploy` branch. Plesk pulls that branch into /learn.oncut.gr. The deploy
+# branch holds only built files.
+#
+# Two jobs, so no third-party code runs next to a write token:
+# `build` runs npm with a read-only token and no stored credentials, and
+# uploads dist/; `publish` runs no npm code and is the only job that can push.
+# Both skip a commit that is no longer the tip of main, so a slow, older run
+# never replaces a newer site.
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+  # By hand, from main only: builds the current main.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event != 'pull_request')
+    runs-on: ubuntu-latest
+    outputs:
+      current: ${{ steps.tip.outputs.current }}
+      sha: ${{ steps.tip.outputs.sha }}
+    steps:
+      - name: Check that this commit is still the tip of main
+        id: tip
+        env:
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          tip=$(git ls-remote "https://github.com/${REPO}.git" refs/heads/main | cut -f1)
+          echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
+          if [ "$tip" = "$SHA" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "current=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping ${SHA}: main is now at ${tip}; the next ci run on main deploys it."
+          fi
+      - if: steps.tip.outputs.current == 'true'
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.tip.outputs.sha }}
+          persist-credentials: false
+      - if: steps.tip.outputs.current == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - if: steps.tip.outputs.current == 'true'
+        run: npm ci
+      - if: steps.tip.outputs.current == 'true'
+        run: npm run build
+      - if: steps.tip.outputs.current == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: site
+          path: dist/
+          include-hidden-files: true
+          retention-days: 1
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    if: needs.build.outputs.current == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: dist
+      - name: Push dist/ to the deploy branch
+        env:
+          SHA: ${{ needs.build.outputs.sha }}
+          REPO: ${{ github.repository }}
+          TOKEN: ${{ github.token }}
+        run: |
+          # Check again: main may have moved while the site was building.
+          tip=$(git ls-remote "https://github.com/${REPO}.git" refs/heads/main | cut -f1)
+          if [ "$tip" != "$SHA" ]; then
+            echo "::notice::Skipping ${SHA}: main is now at ${tip}."
+            exit 0
+          fi
+          test -f dist/index.html && test -f dist/.htaccess
+          cd dist
+          git init -q -b deploy
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Deploy ${SHA}"
+          auth=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
+          git -c "http.extraheader=AUTHORIZATION: basic ${auth}" \
+            push -f "https://github.com/${REPO}.git" deploy

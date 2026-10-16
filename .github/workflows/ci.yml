@@ -1,0 +1,87 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+    # Docs only: nothing to compile or build. Lessons (courses/**) are not
+    # ignored. No ci run means no deploy either (deploy.yml follows ci).
+    paths-ignore: ['docs/**', 'README.md']
+  pull_request:
+    paths-ignore: ['docs/**', 'README.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch cancels the older run; on main
+# that older commit then never deploys, as deploy.yml also checks.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validator-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover tools/validate -v
+
+  snippets-gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python tools/validate/validate.py --compiler gcc
+
+  snippets-clang:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python tools/validate/validate.py --compiler clang
+
+  snippets-msvc:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      # Puts cl on PATH, as the Developer PowerShell for VS does for a student.
+      - uses: ilammy/msvc-dev-cmd@v1.13.0
+      - run: python tools/validate/validate.py --compiler msvc
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npm run check
+
+  # Every content rule must fail the build; a few minutes of builds.
+  build-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: python tools/build_rules/check_build_rules.py
