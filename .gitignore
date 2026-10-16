@@ -1,0 +1,30 @@
+# Dependencies and build output
+node_modules/
+dist/
+.astro/
+
+# Python
+__pycache__/
+*.pyc
+
+# Local environment and logs
+.env
+debug.log
+.DS_Store
+
+# Claude Code skills and settings: kept in the private oncut-learn-pro
+# (claude/oncut-learn/.claude/), not published here
+.claude/
+
+# Compiler output, should the validator ever leave any behind
+*.o
+*.obj
+*.exe
+
+# Working notes, plan, decisions, audits and editor settings: kept in the
+# private oncut-learn-pro (claude/oncut-learn/, docs/oncut-learn/), not here
+CLAUDE.md
+docs/PLAN.md
+docs/DECISIONS.md
+docs/AUDIT-*.md
+.vscode/

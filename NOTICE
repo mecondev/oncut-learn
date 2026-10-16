@@ -1,0 +1,16 @@
+oncut learn
+Copyright 2026 Michail Oikonomou (oncut)
+
+The code in this repository is licensed under the Apache License 2.0
+(LICENSE). The lesson text, quizzes and images under courses/, except the
+code in courses/**/snippets/, are licensed under the Creative Commons
+Attribution-NonCommercial-NoDerivatives 4.0 International license
+(LICENSE-CONTENT).
+
+The name "oncut" and the oncut logo are trademarks of Michail Oikonomou and
+are not licensed under either license (Apache License 2.0, section 6). The
+logo files (src/assets/brand/, public/favicon*, public/apple-touch-icon.png)
+are all rights reserved.
+
+This product includes the Inter and JetBrains Mono typefaces, licensed under
+the SIL Open Font License 1.1 (src/styles/design/fonts/*-OFL.txt).
