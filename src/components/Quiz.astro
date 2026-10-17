@@ -1,5 +1,6 @@
 ---
 import type { Quiz } from '../lib/course'
+import { seededShuffle } from '../lib/shuffle'
 
 interface Props {
   quiz: Quiz
@@ -7,7 +8,9 @@ interface Props {
 }
 
 const { quiz, lessonId } = Astro.props
-const questions = quiz.data.questions
+// Choices in a fixed order per question, not the order they were written in.
+// The radio value stays the index in the quiz file.
+const questions = quiz.data.questions.map((q) => ({ ...q, shown: seededShuffle(q.choices, `${lessonId}:${q.id}`) }))
 ---
 
 <section class="quiz" data-quiz data-lesson-id={lessonId} aria-labelledby="quiz-title">
@@ -20,7 +23,7 @@ const questions = quiz.data.questions
           <legend>
             {n + 1}. {q.prompt}
           </legend>
-          {q.choices.map((c, i) => (
+          {q.shown.map(({ item: c, index: i }) => (
             <div class="choice">
               <label>
                 <input type="radio" name={`q-${q.id}`} value={String(i)} data-correct={c.correct ? '' : undefined} />
@@ -46,7 +49,7 @@ const questions = quiz.data.questions
             <li>
               <p>{q.prompt}</p>
               <ul>
-                {q.choices.map((c) => (
+                {q.shown.map(({ item: c }) => (
                   <li>{c.text}</li>
                 ))}
               </ul>
