@@ -237,6 +237,22 @@ class CompilerTests(unittest.TestCase):
         assert FOUND is not None
         data["error_contains"] = {FOUND[0]: "no such text in any diagnostic"}
         self.assertEqual(self.run_snippet(data, {"main.cpp": source}).status, "FAIL")
+        # A list passes when any one text appears (wording differs by version).
+        data["error_contains"] = {FOUND[0]: ["no such text", "error"]}
+        self.assertEqual(self.run_snippet(data, {"main.cpp": source}).status, "PASS")
+        data["error_contains"] = {FOUND[0]: ["no such text", "nor this"]}
+        self.assertEqual(self.run_snippet(data, {"main.cpp": source}).status, "FAIL")
+
+    def test_error_contains_schema(self) -> None:
+        tmp = TempSnippet(base_data())
+        self.addCleanup(tmp.cleanup)
+        data = base_data(expect="compile-fail", intentional_error=True)
+        del data["stdout"]
+        for bad in ([], [1], ""):
+            data["error_contains"] = {"gcc": bad}
+            self.assertTrue(validate.check_schema(data, tmp.dir), repr(bad))
+        data["error_contains"] = {"gcc": ["a", "b"], "clang": "c"}
+        self.assertEqual(validate.check_schema(data, tmp.dir), [])
 
     def test_compile_fail_that_compiles(self) -> None:
         data = base_data(expect="compile-fail", intentional_error=True)

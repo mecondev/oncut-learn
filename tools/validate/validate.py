@@ -162,9 +162,12 @@ def check_schema(data: object, snippet_dir: Path) -> list[str]:
     if "error_contains" in data:
         if data["expect"] != "compile-fail":
             errors.append("error_contains is only for expect 'compile-fail'")
+        # A string, or a list of strings of which one must appear: versions
+        # of one compiler word the same error differently (g++ 13 and 16).
         for name, text in data["error_contains"].items():
-            if name not in COMPILERS or not isinstance(text, str):
-                errors.append(f"error_contains entry '{name}' must map a compiler to a string")
+            texts = text if isinstance(text, list) else [text]
+            if name not in COMPILERS or not texts or not all(isinstance(t, str) and t for t in texts):
+                errors.append(f"error_contains entry '{name}' must map a compiler to a string or a list of strings")
 
     # Same rule as src/markdown/snippets.ts: one run with "stdout", or a
     # non-empty "cases" list, never both. Otherwise ::output could show a
@@ -344,11 +347,13 @@ def validate_snippet(snippet: Snippet, compiler: str, executable: str) -> Result
             if proc.returncode == 0:
                 return Result(snippet.id, "FAIL", "compiled, but must fail")
             wanted = data.get("error_contains", {}).get(compiler)
-            if wanted and wanted not in output:
+            texts = wanted if isinstance(wanted, list) else [wanted] if wanted else []
+            if texts and not any(t in output for t in texts):
+                quoted = " or ".join(f"'{t}'" for t in texts)
                 return Result(
                     snippet.id,
                     "FAIL",
-                    f"failed as expected, but without '{wanted}'",
+                    f"failed as expected, but without {quoted}",
                     first_lines(output),
                 )
             return Result(snippet.id, "PASS", "compile-fail")
