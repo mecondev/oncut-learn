@@ -58,6 +58,23 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1.13.0
       - run: python tools/validate/validate.py --compiler msvc
 
+  # The toolchain the Windows lesson installs: MSYS2 UCRT64 and its current g++.
+  # Compiler messages differ between g++ versions (setup test, 2026-10-17), so
+  # the messages a lesson quotes are checked against this one too.
+  snippets-msys2:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: msys2/setup-msys2@v2.33.0
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-python
+      - run: python tools/validate/validate.py --compiler gcc
+
   build:
     runs-on: ubuntu-latest
     steps:
