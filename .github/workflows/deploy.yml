@@ -56,11 +56,13 @@ jobs:
         with:
           ref: ${{ steps.tip.outputs.sha }}
           persist-credentials: false
+      # No npm cache here: a cache written by one workflow can be restored by
+      # another, and this job's output becomes the live site. npm ci without
+      # it costs seconds.
       - if: steps.tip.outputs.current == 'true'
         uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
-          cache: npm
       - if: steps.tip.outputs.current == 'true'
         run: npm ci
       - if: steps.tip.outputs.current == 'true'
